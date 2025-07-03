@@ -4,8 +4,11 @@ Run LLM agents without permission checks.
 
 Currently this contains a single role: [`chineseroom`](./roles/chineseroom),
 which configures a Fedora 42 install with a restricted agent user.
+That role has its own readme, which lists features and describes how to use it.
 
 [Published to Ansible Galaxy](https://galaxy.ansible.com/ui/repo/published/mrled/chineseroom/).
+
+See also [the announcement blog post](https://me.micahrl.com/blog/claude-code-chinese-room/).
 
 ## Development
 
