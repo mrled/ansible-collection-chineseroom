@@ -1,0 +1,16 @@
+---
+# User to apply network restrictions to
+chineseroom_restricted_user: agent
+
+# Enable GDM autologin for the chineseroom user
+chineseroom_enable_autologin: false
+
+# Disable screen lock for the chineseroom user
+chineseroom_disable_screen_lock: false
+
+# SSH authorized keys for the chineseroom user
+chineseroom_user_ssh_keys: []
+
+# Let's Encrypt configuration
+chineseroom_letsencrypt_domain: chineseroom.example.com
+chineseroom_letsencrypt_email: "example@example.com"
