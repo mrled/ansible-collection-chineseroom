@@ -1,6 +1,6 @@
 namespace: mrled
 name: chineseroom
-version: 0.0.4
+version: 0.1.0
 readme: README.md
 authors:
 - Micah R Ledbetter <me@micahrl.com>
