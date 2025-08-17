@@ -47,3 +47,8 @@
   shell: |
     gsettings set org.gnome.desktop.session idle-delay 0
   when: chineseroom_disable_screen_lock
+
+# Allow user services/timers to run when the user isn't logged in
+- name: Enable linger for {{ chineseroom_restricted_user }}
+  become: true
+  command: loginctl enable-linger {{ chineseroom_restricted_user }}

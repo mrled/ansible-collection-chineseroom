@@ -14,3 +14,9 @@ chineseroom_user_ssh_keys: []
 # Let's Encrypt configuration
 chineseroom_letsencrypt_domain: chineseroom.example.com
 chineseroom_letsencrypt_email: "example@example.com"
+
+# Application configuration
+chineseroom_app_anthropic_claudecode_enable: true
+chineseroom_app_anthropic_claudecode_autoupdate: true
+chineseroom_app_openai_codex_enable: true
+chineseroom_app_openai_codex_autoupdate: true

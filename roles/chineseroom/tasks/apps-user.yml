@@ -9,7 +9,7 @@
 # https://docs.anthropic.com/en/docs/claude-code/troubleshooting#linux-permission-issues
 - name: Create npm global directory
   file:
-    path: "/home/{{ chineseroom_restricted_user }}/opt"
+    path: "/home/{{ chineseroom_restricted_user }}/.local"
     state: directory
     owner: "{{ chineseroom_restricted_user }}"
     group: "{{ chineseroom_restricted_user }}"
@@ -18,7 +18,7 @@
 - name: Configure npm prefix for chineseroom user
   lineinfile:
     path: "/home/{{ chineseroom_restricted_user }}/.npmrc"
-    line: 'prefix=/home/{{ chineseroom_restricted_user }}/opt'
+    line: 'prefix=/home/{{ chineseroom_restricted_user }}/.local'
     state: present
     owner: "{{ chineseroom_restricted_user }}"
     group: "{{ chineseroom_restricted_user }}"
@@ -28,7 +28,7 @@
 - name: Add npm global bin to PATH in bashrc
   lineinfile:
     path: "/home/{{ chineseroom_restricted_user }}/.bashrc"
-    line: 'export PATH=~/opt/bin:$PATH'
+    line: 'export PATH=~/.local/bin:$PATH'
     state: present
     owner: "{{ chineseroom_restricted_user }}"
     group: "{{ chineseroom_restricted_user }}"
@@ -43,8 +43,50 @@
     global: yes
     state: present
   environment:
-    PATH: "/home/{{ chineseroom_restricted_user }}/opt/bin:{{ ansible_env.PATH }}"
-    npm_config_prefix: "/home/{{ chineseroom_restricted_user }}/opt"
+    PATH: "/home/{{ chineseroom_restricted_user }}/.local/bin:{{ ansible_env.PATH }}"
+    npm_config_prefix: "/home/{{ chineseroom_restricted_user }}/.local"
+  when: chineseroom_app_anthropic_claudecode_enable
+
+- name: Add user service to update Claude Code
+  copy:
+    dest: "/home/{{ chineseroom_restricted_user }}/.config/systemd/user/claude-code-update.service"
+    owner: "{{ chineseroom_restricted_user }}"
+    group: "{{ chineseroom_restricted_user }}"
+    mode: '0644'
+    content: |
+      [Unit]
+      Description=Update Claude Code Oneshot
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/bin/npm install -g @anthropic-ai/claude-code
+      Environment=PATH=/home/{{ chineseroom_restricted_user }}/.local/bin:{{ ansible_env.PATH }}
+      Environment=npm_config_prefix=/home/{{ chineseroom_restricted_user }}/.local
+  notify:
+    - user daemon-reload
+  when: chineseroom_app_anthropic_claudecode_autoupdate
+
+- name: Add user timer to update Claude Code
+  copy:
+    dest: "/home/{{ chineseroom_restricted_user }}/.config/systemd/user/claude-code-update.timer"
+    owner: "{{ chineseroom_restricted_user }}"
+    group: "{{ chineseroom_restricted_user }}"
+    mode: '0644'
+    content: |
+      [Unit]
+      Description=Update Claude Code Timer
+      [Timer]
+      # Run nightly between 2 AM and 6 AM (with the delay)
+      OnCalendar=*-*-* 02:00:00
+      RandomizedDelaySec=4h
+      # If the machine was off during a scheduled window, run once at next boot
+      Persistent=true
+      Unit=claude-code-update.service
+      [Install]
+      WantedBy=timers.target
+  notify:
+    - user daemon-reload
+    - enable claude-code-update.timer
+  when: chineseroom_app_anthropic_claudecode_autoupdate
 
 - name: Install OpenAI Codex CLI for chineseroom user
   become: yes
@@ -54,5 +96,47 @@
     global: yes
     state: present
   environment:
-    PATH: "/home/{{ chineseroom_restricted_user }}/opt/bin:{{ ansible_env.PATH }}"
-    npm_config_prefix: "/home/{{ chineseroom_restricted_user }}/opt"
+    PATH: "/home/{{ chineseroom_restricted_user }}/.local/bin:{{ ansible_env.PATH }}"
+    npm_config_prefix: "/home/{{ chineseroom_restricted_user }}/.local"
+  when: chineseroom_app_openai_codex_enable
+
+- name: Add user service to update OpenAI Codex CLI
+  copy:
+    dest: "/home/{{ chineseroom_restricted_user }}/.config/systemd/user/openai-codex-update.service"
+    owner: "{{ chineseroom_restricted_user }}"
+    group: "{{ chineseroom_restricted_user }}"
+    mode: '0644'
+    content: |
+      [Unit]
+      Description=Update OpenAI Codex CLI Oneshot
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/bin/npm install -g @openai/codex
+      Environment=PATH=/home/{{ chineseroom_restricted_user }}/.local/bin:{{ ansible_env.PATH }}
+      Environment=npm_config_prefix=/home/{{ chineseroom_restricted_user }}/.local
+  notify:
+    - user daemon-reload
+  when: chineseroom_app_openai_codex_autoupdate
+
+- name: Add user timer to update OpenAI Codex CLI
+  copy:
+    dest: "/home/{{ chineseroom_restricted_user }}/.config/systemd/user/openai-codex-update.timer"
+    owner: "{{ chineseroom_restricted_user }}"
+    group: "{{ chineseroom_restricted_user }}"
+    mode: '0644'
+    content: |
+      [Unit]
+      Description=Update OpenAI Codex CLI Timer
+      [Timer]
+      # Run nightly between 2 AM and 6 AM (with the delay)
+      OnCalendar=*-*-* 02:00:00
+      RandomizedDelaySec=4h
+      # If the machine was off during a scheduled window, run once at next boot
+      Persistent=true
+      Unit=openai-codex-update.service
+      [Install]
+      WantedBy=timers.target
+  notify:
+    - user daemon-reload
+    - enable openai-codex-update.timer
+  when: chineseroom_app_openai_codex_autoupdate
