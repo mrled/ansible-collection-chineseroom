@@ -85,15 +85,3 @@ In detail:
   because it prevents the agent from adding scripts to git hooks or smudge filters that could obscure diffs
 - Pull code from the `chineseroom` remote safely, review it on your workstation as normal,
   and run it when satisfied
-
-### Playwright MCP and Claude
-
-The default instructions assume Chrome is installed.
-Chrome is only installable on x86_64, and this role is meant to work on aarch64 as well, so we don't install it.
-Enable Playwright MCP and tell it to use Firefox instead:
-
-```sh
-claude mcp add playwright npx -- '@playwright/mcp@latest' --browser firefox
-```
-
-The role can't do this for you because it must be done separately in each Claude workspace.
