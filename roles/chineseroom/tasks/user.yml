@@ -52,3 +52,23 @@
 - name: Enable linger for {{ chineseroom_restricted_user }}
   become: true
   command: loginctl enable-linger {{ chineseroom_restricted_user }}
+
+- name: Install chineseroom aliases file
+  template:
+    src: aliases.sh.j2
+    dest: "/home/{{ chineseroom_restricted_user }}/.config/aliases.sh"
+    owner: "{{ chineseroom_restricted_user }}"
+    group: "{{ chineseroom_restricted_user }}"
+    mode: '0644'
+  tags:
+  - chineseroom_aliases
+
+- name: Add aliases to bashrc
+  lineinfile:
+    path: "/home/{{ chineseroom_restricted_user }}/.bashrc"
+    line: 'test -f ~/.config/aliases.sh && source ~/.config/aliases.sh'
+    state: present
+    owner: "{{ chineseroom_restricted_user }}"
+    group: "{{ chineseroom_restricted_user }}"
+    mode: '0644'
+    create: yes
