@@ -98,6 +98,9 @@
     claude mcp add playwright --scope user npx -- '@playwright/mcp@latest' --browser firefox
   environment:
     PATH: "/home/{{ chineseroom_restricted_user }}/.local/bin:{{ ansible_env.PATH }}"
+  register: playwright_install
+  failed_when: "'MCP server playwright already exists in user config' not in playwright_install.stderr and playwright_install.rc != 0"
+  changed_when: "'MCP server playwright already exists in user config' not in playwright_install.stderr and playwright_install.rc == 0"
   when: chineseroom_app_playwright_enable
 
 - name: Install OpenAI Codex CLI for chineseroom user
