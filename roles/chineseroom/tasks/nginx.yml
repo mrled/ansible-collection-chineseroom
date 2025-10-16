@@ -14,6 +14,21 @@
     mode: '0644'
   notify: reload nginx
 
+- name: Add connection upgrade map to nginx config
+  copy:
+    content: |
+      # This is required to enable
+      #   proxy_set_header   Connection $connection_upgrade;
+      # which is required for WebSocket support
+      map $http_upgrade $connection_upgrade {
+        default upgrade;
+        ''      close;
+      }
+    dest: "{{ chineseroom_nginx_conf_dir }}/connection-upgrade.conf"
+    owner: root
+    group: root
+    mode: '0644'
+
 - name: Configure firewall for HTTP and HTTPS
   firewalld:
     service: "{{ item }}"
