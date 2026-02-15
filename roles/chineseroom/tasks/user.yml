@@ -53,6 +53,14 @@
   become: true
   command: loginctl enable-linger {{ chineseroom_restricted_user }}
 
+- name: Create .config directory for chineseroom user
+  file:
+    path: "/home/{{ chineseroom_restricted_user }}/.config"
+    state: directory
+    owner: "{{ chineseroom_restricted_user }}"
+    group: "{{ chineseroom_restricted_user }}"
+    mode: '0755'
+
 - name: Install chineseroom aliases file
   template:
     src: aliases.sh.j2

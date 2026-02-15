@@ -47,6 +47,14 @@
     npm_config_prefix: "/home/{{ chineseroom_restricted_user }}/.local"
   when: chineseroom_app_anthropic_claudecode_enable
 
+- name: Create systemd user service directory for chineseroom user
+  file:
+    path: "/home/{{ chineseroom_restricted_user }}/.config/systemd/user"
+    state: directory
+    owner: "{{ chineseroom_restricted_user }}"
+    group: "{{ chineseroom_restricted_user }}"
+    mode: '0700'
+
 - name: Add user service to update Claude Code
   copy:
     dest: "/home/{{ chineseroom_restricted_user }}/.config/systemd/user/claude-code-update.service"
