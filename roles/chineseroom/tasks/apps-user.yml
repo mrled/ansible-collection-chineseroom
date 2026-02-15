@@ -163,3 +163,15 @@
     - user daemon-reload
     - enable openai-codex-update.timer
   when: chineseroom_app_openai_codex_autoupdate
+
+- name: Install OpenClaw for chineseroom user
+  become: yes
+  become_user: "{{ chineseroom_restricted_user }}"
+  npm:
+    name: "openclaw@latest"
+    global: yes
+    state: present
+  environment:
+    PATH: "/home/{{ chineseroom_restricted_user }}/.local/bin:{{ ansible_env.PATH }}"
+    npm_config_prefix: "/home/{{ chineseroom_restricted_user }}/.local"
+  when: chineseroom_app_openclaw_enable
