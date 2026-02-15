@@ -15,6 +15,11 @@ chineseroom_user_ssh_keys: []
 chineseroom_letsencrypt_domain: chineseroom.example.com
 chineseroom_letsencrypt_email: "example@example.com"
 
+# AWS credentials for Let's Encrypt DNS validation
+chineseroom_aws_region: us-east-1
+chineseroom_aws_access_key_id: ""
+chineseroom_aws_secret_access_key: ""
+
 # Application configuration
 chineseroom_app_anthropic_claudecode_enable: true
 chineseroom_app_anthropic_claudecode_autoupdate: true

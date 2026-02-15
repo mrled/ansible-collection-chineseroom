@@ -1,21 +1,45 @@
 ---
-- name: Check if AWS credentials exist
-  stat:
-    path: "/root/.aws/credentials"
-  register: aws_creds
-
-- name: Check if AWS config exists
-  stat:
-    path: "/root/.aws/config"
-  register: aws_config
-
 - name: Fail if AWS credentials are not configured
   fail:
     msg: |
-      AWS credentials must be configured at {{ chineseroom_aws_credentials_path }}
-      with Route53 permissions for DNS validation.
-      Also ensure {{ chineseroom_aws_config_path }} has a region configured.
-  when: not aws_creds.stat.exists or not aws_config.stat.exists
+      AWS credentials must be configured via:
+        - chineseroom_aws_access_key_id
+        - chineseroom_aws_secret_access_key
+        - chineseroom_aws_region
+      These are required for Let's Encrypt DNS validation via Route53.
+  when: >
+    chineseroom_aws_access_key_id == "" or
+    chineseroom_aws_secret_access_key == "" or
+    chineseroom_aws_region == ""
+
+- name: Create AWS configuration directory
+  file:
+    path: /root/.aws
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: Configure AWS credentials
+  copy:
+    content: |
+      [default]
+      aws_access_key_id = {{ chineseroom_aws_access_key_id }}
+      aws_secret_access_key = {{ chineseroom_aws_secret_access_key }}
+    dest: /root/.aws/credentials
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Configure AWS region
+  copy:
+    content: |
+      [default]
+      region = {{ chineseroom_aws_region }}
+    dest: /root/.aws/config
+    owner: root
+    group: root
+    mode: '0600'
 
 - name: Install required packages
   package:
