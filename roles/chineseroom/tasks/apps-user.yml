@@ -220,3 +220,12 @@
     PATH: "/home/{{ chineseroom_restricted_user }}/.local/bin:{{ ansible_env.PATH }}"
     npm_config_prefix: "/home/{{ chineseroom_restricted_user }}/.local"
   when: chineseroom_app_openclaw_enable
+
+- name: Workaround for OpenClaw matrix-bot-sdk dependency
+  become: yes
+  become_user: "{{ chineseroom_restricted_user }}"
+  npm:
+    name: "@vector-im/matrix-bot-sdk"
+    path: "/home/{{ chineseroom_restricted_user }}/.local/lib/node_modules/openclaw"
+    state: present
+  when: chineseroom_app_openclaw_enable
