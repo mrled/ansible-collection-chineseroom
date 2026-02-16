@@ -21,6 +21,7 @@ chineseroom_aws_access_key_id: ""
 chineseroom_aws_secret_access_key: ""
 
 # Application configuration
+chineseroom_app_homebrew_enable: true # OpenClaw uses lots of Homebrew packages
 chineseroom_app_anthropic_claudecode_enable: true
 chineseroom_app_anthropic_claudecode_autoupdate: true
 chineseroom_app_openai_codex_enable: true

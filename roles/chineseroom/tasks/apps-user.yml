@@ -35,6 +35,51 @@
     mode: '0644'
     create: yes
 
+- name: Install Homebrew dependencies
+  dnf:
+    name:
+      - curl
+      - git
+      - procps-ng
+    state: present
+  when: chineseroom_app_homebrew_enable
+
+- name: Create /home/linuxbrew directory
+  file:
+    path: /home/linuxbrew
+    state: directory
+    owner: "{{ chineseroom_restricted_user }}"
+    group: "{{ chineseroom_restricted_user }}"
+    mode: '0755'
+  when: chineseroom_app_homebrew_enable
+
+- name: Install Homebrew system-wide
+  become: yes
+  become_user: "{{ chineseroom_restricted_user }}"
+  shell: |
+    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  args:
+    creates: "/home/linuxbrew/.linuxbrew/bin/brew"
+  environment:
+    HOME: /home/linuxbrew
+  when: chineseroom_app_homebrew_enable
+
+- name: Set permissions on Homebrew installation directory for system-wide access
+  file:
+    path: /home/linuxbrew/.linuxbrew
+    mode: '0755'
+    state: directory
+    recurse: no
+  when: chineseroom_app_homebrew_enable
+
+- name: Add Homebrew to system PATH
+  copy:
+    dest: /etc/profile.d/homebrew.sh
+    mode: '0644'
+    content: |
+      eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+  when: chineseroom_app_homebrew_enable
+
 - name: Install Claude Code for chineseroom user
   become: yes
   become_user: "{{ chineseroom_restricted_user }}"
