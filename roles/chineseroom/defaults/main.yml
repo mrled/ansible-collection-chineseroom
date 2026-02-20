@@ -28,3 +28,4 @@ chineseroom_app_openai_codex_enable: true
 chineseroom_app_openai_codex_autoupdate: true
 chineseroom_app_playwright_enable: true
 chineseroom_app_openclaw_enable: true
+chineseroom_app_ghcup_enable: true
