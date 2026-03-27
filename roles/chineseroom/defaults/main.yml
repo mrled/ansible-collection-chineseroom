@@ -11,6 +11,8 @@ chineseroom_disable_screen_lock: false
 # SSH authorized keys for the chineseroom user
 chineseroom_user_ssh_keys: []
 
+chineseroom_user_modify_bashrc: true
+
 # If the firewall is enabled we need to manage it
 chineseroom_firewall_enabled: true
 

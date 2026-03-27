@@ -34,6 +34,7 @@
     group: "{{ chineseroom_restricted_user }}"
     mode: '0644'
     create: yes
+  when: chineseroom_user_modify_bashrc
 
 - name: Install Homebrew dependencies
   dnf:
