@@ -10,4 +10,7 @@ chineseroom_user_map_file: "/home/{{ chineseroom_restricted_user }}/domainmap.tx
 # Scripts and configuration paths
 chineseroom_nginx_mapping_script: /usr/local/bin/regen-nginx-mappings.sh
 chineseroom_nginx_conf_dir: /etc/nginx/conf.d
+chineseroom_nginx_conf_trusted_dir: /etc/nginx/conf.trusted.d
+chineseroom_nginx_conf_sandbox_dir: /etc/nginx/conf.sandbox.d
+chineseroom_nginx_ssl_conf: "{{ chineseroom_nginx_conf_dir }}/chineseroom-ssl.conf"
 chineseroom_letsencrypt_base: /etc/letsencrypt

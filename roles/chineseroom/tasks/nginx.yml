@@ -5,6 +5,42 @@
       - nginx
     state: present
 
+- name: Create nginx trusted conf directory
+  file:
+    path: "{{ chineseroom_nginx_conf_trusted_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Create nginx sandbox conf directory
+  file:
+    path: "{{ chineseroom_nginx_conf_sandbox_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Deploy shared SSL/TLS parameters
+  template:
+    src: nginx-ssl.conf.j2
+    dest: "{{ chineseroom_nginx_ssl_conf }}"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: reload nginx
+
+- name: Add includes for trusted and sandbox conf directories
+  copy:
+    content: |
+      include {{ chineseroom_nginx_conf_trusted_dir }}/*.conf;
+      include {{ chineseroom_nginx_conf_sandbox_dir }}/*.conf;
+    dest: "{{ chineseroom_nginx_conf_dir }}/chineseroom-includes.conf"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: reload nginx
+
 - name: Create nginx configuration for domain
   template:
     src: nginx-domain.conf.j2

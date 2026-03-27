@@ -1,22 +1,39 @@
-# Redirect all HTTP traffic to HTTPS, including subdomains
+# Redirect all HTTP traffic to HTTPS regardless of host
 server {
-    listen 80;
-    server_name {{ chineseroom_letsencrypt_domain }} *.{{ chineseroom_letsencrypt_domain }};
-    location / {
-        return 301 https://$host$request_uri;
-    }
+    listen 80 default_server;
+    server_name _;
+    return 301 https://$host$request_uri;
 }
 
-# Respond with default content for the main domain only, no subdomains
+# Default HTTPS catch-all: drop connections to any unrecognised hostname.
+# This must be listed before named server blocks so nginx matches it only
+# when nothing else matches (nginx uses first-listed default_server).
+server {
+    listen 443 ssl default_server;
+    server_name _;
+    return 444;
+}
+
+# Main domain — serves static content; not proxied
 server {
     listen 443 ssl;
     server_name {{ chineseroom_letsencrypt_domain }};
 
-    ssl_certificate     {{ chineseroom_letsencrypt_base }}/live/{{ chineseroom_letsencrypt_domain }}/fullchain.pem;
-    ssl_certificate_key {{ chineseroom_letsencrypt_base }}/live/{{ chineseroom_letsencrypt_domain }}/privkey.pem;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
 
     location / {
         root {{ chineseroom_nginx_root }};
         index index.html;
     }
+}
+
+# Sandbox root — not a real service; the restricted user can only expose things
+# under *.{{ chineseroom_sandbox_subdomain }}.{{ chineseroom_letsencrypt_domain }},
+# not at the sandbox root itself.
+server {
+    listen 443 ssl;
+    server_name {{ chineseroom_sandbox_subdomain }}.{{ chineseroom_letsencrypt_domain }};
+    return 404;
 }

@@ -18,6 +18,11 @@ chineseroom_firewall_enabled: true
 chineseroom_letsencrypt_domain: chineseroom.example.com
 chineseroom_letsencrypt_email: "example@example.com"
 
+# Subdomain prefix reserved for services the restricted user can expose.
+# User-controlled mappings become <name>.<sandbox_subdomain>.<domain>.
+# The root domain and all other direct subdomains are reserved for trusted services.
+chineseroom_sandbox_subdomain: sandbox
+
 # AWS credentials for Let's Encrypt DNS validation
 chineseroom_aws_region: us-east-1
 chineseroom_aws_access_key_id: ""
