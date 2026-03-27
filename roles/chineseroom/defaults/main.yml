@@ -11,6 +11,9 @@ chineseroom_disable_screen_lock: false
 # SSH authorized keys for the chineseroom user
 chineseroom_user_ssh_keys: []
 
+# If the firewall is enabled we need to manage it
+chineseroom_firewall_enabled: true
+
 # Let's Encrypt configuration
 chineseroom_letsencrypt_domain: chineseroom.example.com
 chineseroom_letsencrypt_email: "example@example.com"

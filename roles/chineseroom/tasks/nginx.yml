@@ -38,6 +38,7 @@
   loop:
     - http
     - https
+  when: chineseroom_firewall_enabled
 
 - name: Enable and start nginx
   systemd:
