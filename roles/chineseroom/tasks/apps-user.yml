@@ -78,6 +78,10 @@
     mode: '0644'
     content: |
       eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+      brew() {
+        umask 0022
+        /home/linuxbrew/.linuxbrew/bin/brew "$@"
+      }
   when: chineseroom_app_homebrew_enable
 
 - name: Install Claude Code for chineseroom user (native installer)
