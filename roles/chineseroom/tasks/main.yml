@@ -8,6 +8,11 @@
   tags:
   - chineseroom_user
 
+- name: Install system apps
+  import_tasks: apps-system.yml
+  tags:
+  - chineseroom_apps_system
+
 - name: Install apps as the restricted user
   import_tasks: apps-user.yml
   tags:

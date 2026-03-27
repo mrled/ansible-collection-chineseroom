@@ -1,0 +1,12 @@
+---
+- name: Add GitHub CLI DNF repo
+  ansible.builtin.get_url:
+    url: https://cli.github.com/packages/rpm/gh-cli.repo
+    dest: /etc/yum.repos.d/gh-cli.repo
+    mode: "0644"
+
+- name: Install system packages
+  dnf:
+    name:
+      - gh
+    state: present
