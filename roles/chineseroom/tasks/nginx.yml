@@ -50,6 +50,18 @@
     mode: '0644'
   notify: reload nginx
 
+- name: Set server_names_hash_bucket_size for long hostnames
+  copy:
+    content: |
+      # Long sandbox hostnames (e.g. app.sandbox.host.example.com) exceed
+      # nginx's default 64-byte hash bucket size.
+      server_names_hash_bucket_size 128;
+    dest: "{{ chineseroom_nginx_conf_dir }}/chineseroom-tuning.conf"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: reload nginx
+
 - name: Add connection upgrade map to nginx config
   copy:
     content: |
