@@ -6,6 +6,8 @@ chineseroom_nft_table_nat: chineseroom_nat
 # Nginx configuration
 chineseroom_nginx_root: /usr/share/nginx/html
 chineseroom_user_map_file: "/home/{{ chineseroom_restricted_user }}/domainmap.txt"
+chineseroom_domainmap_dir: /etc/chineseroom
+chineseroom_domainmap_sandbox_dir: /etc/chineseroom/domainmap.sandbox.d
 
 # Scripts and configuration paths
 chineseroom_nginx_mapping_script: /usr/local/bin/regen-nginx-mappings.sh
