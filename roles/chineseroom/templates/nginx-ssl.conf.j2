@@ -15,13 +15,6 @@ ssl_session_cache         shared:SSL:10m;
 ssl_session_timeout       1d;
 ssl_session_tickets       off;
 
-# OCSP stapling
-ssl_stapling              on;
-ssl_stapling_verify       on;
-ssl_trusted_certificate   {{ chineseroom_letsencrypt_base }}/live/{{ chineseroom_letsencrypt_domain }}/chain.pem;
-resolver                  1.1.1.1 8.8.8.8 valid=300s;
-resolver_timeout          5s;
-
 # Don't leak nginx version in Server header or error pages
 server_tokens off;
 
