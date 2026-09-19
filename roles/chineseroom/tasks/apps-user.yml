@@ -85,7 +85,7 @@
       }
   when: chineseroom_app_homebrew_enable
 
-- name: Install Claude Code for chineseroom user (native installer)
+- name: Install Claude Code for chineseroom user (native installer) # noqa command-instead-of-module risky-shell-pipe
   become: true
   become_user: "{{ chineseroom_restricted_user }}"
   ansible.builtin.shell: |
@@ -152,9 +152,9 @@
     claude mcp add playwright --scope user npx -- '@playwright/mcp@latest' --browser firefox
   environment:
     PATH: "/home/{{ chineseroom_restricted_user }}/.local/bin:{{ ansible_env.PATH }}"
-  register: playwright_install
-  failed_when: "'MCP server playwright already exists in user config' not in playwright_install.stderr and playwright_install.rc != 0"
-  changed_when: "'MCP server playwright already exists in user config' not in playwright_install.stderr and playwright_install.rc == 0"
+  register: chineseroom_playwright_install
+  failed_when: "'MCP server playwright already exists in user config' not in chineseroom_playwright_install.stderr and chineseroom_playwright_install.rc != 0"
+  changed_when: "'MCP server playwright already exists in user config' not in chineseroom_playwright_install.stderr and chineseroom_playwright_install.rc == 0"
   when: chineseroom_app_playwright_enable
 
 - name: Install OpenAI Codex CLI for chineseroom user

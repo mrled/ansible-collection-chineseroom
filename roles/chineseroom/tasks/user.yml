@@ -36,6 +36,7 @@
     option: "{{ item.option }}"
     value: "{{ item.value }}"
     backup: true
+    mode: "0644"
   loop:
     - { option: "AutomaticLoginEnable", value: "True" }
     - { option: "AutomaticLogin", value: "{{ chineseroom_restricted_user }}" }
@@ -44,14 +45,17 @@
 - name: Disable screen lock for chineseroom user
   become: true
   become_user: "{{ chineseroom_restricted_user }}"
-  ansible.builtin.shell: |
-    gsettings set org.gnome.desktop.session idle-delay 0
+  ansible.builtin.command: gsettings set org.gnome.desktop.session idle-delay 0
+  changed_when: false
   when: chineseroom_disable_screen_lock
 
 # Allow user services/timers to run when the user isn't logged in
 - name: Enable linger for {{ chineseroom_restricted_user }}
   become: true
   ansible.builtin.command: loginctl enable-linger {{ chineseroom_restricted_user }}
+  args:
+    creates: "/var/lib/systemd/linger/{{ chineseroom_restricted_user }}"
+
 - name: Create .config directory for chineseroom user
   ansible.builtin.file:
     path: "/home/{{ chineseroom_restricted_user }}/.config"

@@ -29,12 +29,13 @@
     line: "{{ chineseroom_restricted_user }} ALL=(ALL) NOPASSWD: {{ chineseroom_nginx_mapping_script }}"
     create: true
     state: present
+    mode: "0440"
     validate: "visudo -cf %s"
 
 - name: Check if user map file exists
   ansible.builtin.stat:
     path: "{{ chineseroom_user_map_file }}"
-  register: user_map_exists
+  register: chineseroom_user_map_exists
 
 - name: Create empty user map file if it doesn't exist
   ansible.builtin.file:
@@ -43,7 +44,7 @@
     owner: "{{ chineseroom_restricted_user }}"
     group: "{{ chineseroom_restricted_user }}"
     mode: "0644"
-  when: not user_map_exists.stat.exists
+  when: not chineseroom_user_map_exists.stat.exists
 
 - name: Run nginx mapping regeneration script
   ansible.builtin.command: "{{ chineseroom_nginx_mapping_script }}"

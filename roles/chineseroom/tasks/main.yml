@@ -2,6 +2,8 @@
 - name: Install prereqs
   # Make sure we have the libraries needed for Ansible to be able to install packages
   ansible.builtin.command: dnf install -y python3-libdnf5
+  args:
+    creates: /usr/lib64/python3.14/site-packages/libdnf5/__init__.py
 
 - name: Create and configure chineseroom user
   ansible.builtin.import_tasks: user.yml
