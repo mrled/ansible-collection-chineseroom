@@ -4,31 +4,30 @@
   ansible.builtin.command: dnf install -y python3-libdnf5
 
 - name: Create and configure chineseroom user
-  import_tasks: user.yml
+  ansible.builtin.import_tasks: user.yml
   tags:
-  - chineseroom_user
+    - chineseroom_user
 
 - name: Install system apps
-  import_tasks: apps-system.yml
+  ansible.builtin.import_tasks: apps-system.yml
   tags:
-  - chineseroom_apps_system
+    - chineseroom_apps_system
 
 - name: Install apps as the restricted user
-  import_tasks: apps-user.yml
+  ansible.builtin.import_tasks: apps-user.yml
   tags:
-  - chineseroom_apps_user
+    - chineseroom_apps_user
 
 - name: Configure Let's Encrypt
   tags:
-  - chineseroom_letsencrypt
-  import_tasks: letsencrypt.yml
-
+    - chineseroom_letsencrypt
+  ansible.builtin.import_tasks: letsencrypt.yml
 - name: Install and configure Nginx
-  import_tasks: nginx.yml
+  ansible.builtin.import_tasks: nginx.yml
   tags:
-  - chineseroom_nginx
+    - chineseroom_nginx
 
 - name: Set up subdomain:port mappings from the restricted user
-  import_tasks: usermapping.yml
+  ansible.builtin.import_tasks: usermapping.yml
   tags:
-  - chineseroom_usermapping
+    - chineseroom_usermapping

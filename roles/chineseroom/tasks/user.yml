@@ -1,20 +1,20 @@
 ---
 - name: Create chineseroom user
-  user:
+  ansible.builtin.user:
     name: "{{ chineseroom_restricted_user }}"
-    create_home: yes
+    create_home: true
     state: present
 
 - name: Create SSH directory for chineseroom user
-  file:
+  ansible.builtin.file:
     path: "/home/{{ chineseroom_restricted_user }}/.ssh"
     state: directory
     owner: "{{ chineseroom_restricted_user }}"
     group: "{{ chineseroom_restricted_user }}"
-    mode: '0700'
+    mode: "0700"
 
 - name: Add SSH authorized keys for chineseroom user
-  authorized_key:
+  ansible.posix.authorized_key:
     user: "{{ chineseroom_restricted_user }}"
     key: "{{ item }}"
     state: present
@@ -22,62 +22,61 @@
   when: chineseroom_user_ssh_keys | length > 0
 
 - name: Create repos directory for chineseroom user
-  file:
+  ansible.builtin.file:
     path: "/home/{{ chineseroom_restricted_user }}/repos"
     state: directory
     owner: "{{ chineseroom_restricted_user }}"
     group: "{{ chineseroom_restricted_user }}"
-    mode: '0700'
+    mode: "0700"
 
 - name: Configure GDM for autologin
-  ini_file:
+  community.general.ini_file:
     path: /etc/gdm/custom.conf
     section: daemon
     option: "{{ item.option }}"
     value: "{{ item.value }}"
-    backup: yes
+    backup: true
   loop:
     - { option: "AutomaticLoginEnable", value: "True" }
     - { option: "AutomaticLogin", value: "{{ chineseroom_restricted_user }}" }
   when: chineseroom_enable_autologin
 
 - name: Disable screen lock for chineseroom user
-  become: yes
+  become: true
   become_user: "{{ chineseroom_restricted_user }}"
-  shell: |
+  ansible.builtin.shell: |
     gsettings set org.gnome.desktop.session idle-delay 0
   when: chineseroom_disable_screen_lock
 
 # Allow user services/timers to run when the user isn't logged in
 - name: Enable linger for {{ chineseroom_restricted_user }}
   become: true
-  command: loginctl enable-linger {{ chineseroom_restricted_user }}
-
+  ansible.builtin.command: loginctl enable-linger {{ chineseroom_restricted_user }}
 - name: Create .config directory for chineseroom user
-  file:
+  ansible.builtin.file:
     path: "/home/{{ chineseroom_restricted_user }}/.config"
     state: directory
     owner: "{{ chineseroom_restricted_user }}"
     group: "{{ chineseroom_restricted_user }}"
-    mode: '0755'
+    mode: "0755"
 
 - name: Install chineseroom aliases file
-  template:
+  ansible.builtin.template:
     src: aliases.sh.j2
     dest: "/home/{{ chineseroom_restricted_user }}/.config/aliases.sh"
     owner: "{{ chineseroom_restricted_user }}"
     group: "{{ chineseroom_restricted_user }}"
-    mode: '0644'
+    mode: "0644"
   tags:
-  - chineseroom_aliases
+    - chineseroom_aliases
 
 - name: Add aliases to bashrc
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "/home/{{ chineseroom_restricted_user }}/.bashrc"
-    line: 'test -f ~/.config/aliases.sh && source ~/.config/aliases.sh'
+    line: "test -f ~/.config/aliases.sh && source ~/.config/aliases.sh"
     state: present
     owner: "{{ chineseroom_restricted_user }}"
     group: "{{ chineseroom_restricted_user }}"
-    mode: '0644'
-    create: yes
+    mode: "0644"
+    create: true
   when: chineseroom_user_modify_bashrc

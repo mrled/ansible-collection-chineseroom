@@ -6,7 +6,7 @@
     mode: "0644"
 
 - name: Install system packages
-  dnf:
+  ansible.builtin.dnf:
     name:
       - gh
     state: present

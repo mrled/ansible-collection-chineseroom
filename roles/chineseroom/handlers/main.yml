@@ -1,22 +1,22 @@
 ---
-- name: reload nginx
-  systemd:
+- name: Reload nginx
+  ansible.builtin.systemd:
     name: nginx
     state: reloaded
 
-- name: restart nginx
-  systemd:
+- name: Restart nginx
+  ansible.builtin.systemd:
     name: nginx
     state: restarted
 
-- name: user daemon-reload
+- name: User daemon-reload
   become: true
   become_user: "{{ chineseroom_restricted_user }}"
   ansible.builtin.systemd:
     daemon_reload: true
     scope: user
 
-- name: enable claude-code-update.timer
+- name: Enable claude-code-update.timer
   become: true
   become_user: "{{ chineseroom_restricted_user }}"
   ansible.builtin.systemd:
@@ -25,7 +25,7 @@
     state: started
     scope: user
 
-- name: enable openai-codex-update.timer
+- name: Enable openai-codex-update.timer
   become: true
   become_user: "{{ chineseroom_restricted_user }}"
   ansible.builtin.systemd:

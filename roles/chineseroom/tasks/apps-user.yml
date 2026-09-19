@@ -1,6 +1,6 @@
 ---
 - name: Install Node.js and npm
-  dnf:
+  ansible.builtin.dnf:
     name:
       - nodejs
       - npm
@@ -8,36 +8,36 @@
 
 # https://docs.anthropic.com/en/docs/claude-code/troubleshooting#linux-permission-issues
 - name: Create npm global directory
-  file:
+  ansible.builtin.file:
     path: "/home/{{ chineseroom_restricted_user }}/.local"
     state: directory
     owner: "{{ chineseroom_restricted_user }}"
     group: "{{ chineseroom_restricted_user }}"
-    mode: '0755'
+    mode: "0755"
 
 - name: Configure npm prefix for chineseroom user
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "/home/{{ chineseroom_restricted_user }}/.npmrc"
-    line: 'prefix=/home/{{ chineseroom_restricted_user }}/.local'
+    line: "prefix=/home/{{ chineseroom_restricted_user }}/.local"
     state: present
     owner: "{{ chineseroom_restricted_user }}"
     group: "{{ chineseroom_restricted_user }}"
-    mode: '0644'
-    create: yes
+    mode: "0644"
+    create: true
 
 - name: Add npm global bin to PATH in bashrc
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "/home/{{ chineseroom_restricted_user }}/.bashrc"
-    line: 'export PATH=~/.local/bin:$PATH'
+    line: "export PATH=~/.local/bin:$PATH"
     state: present
     owner: "{{ chineseroom_restricted_user }}"
     group: "{{ chineseroom_restricted_user }}"
-    mode: '0644'
-    create: yes
+    mode: "0644"
+    create: true
   when: chineseroom_user_modify_bashrc
 
 - name: Install Homebrew dependencies
-  dnf:
+  ansible.builtin.dnf:
     name:
       - curl
       - git
@@ -46,18 +46,18 @@
   when: chineseroom_app_homebrew_enable
 
 - name: Create /home/linuxbrew directory
-  file:
+  ansible.builtin.file:
     path: /home/linuxbrew
     state: directory
     owner: "{{ chineseroom_restricted_user }}"
     group: "{{ chineseroom_restricted_user }}"
-    mode: '0755'
+    mode: "0755"
   when: chineseroom_app_homebrew_enable
 
 - name: Install Homebrew system-wide
-  become: yes
+  become: true
   become_user: "{{ chineseroom_restricted_user }}"
-  shell: |
+  ansible.builtin.shell: |
     NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   args:
     creates: "/home/linuxbrew/.linuxbrew/bin/brew"
@@ -66,17 +66,17 @@
   when: chineseroom_app_homebrew_enable
 
 - name: Set permissions on Homebrew installation directory for system-wide access
-  file:
+  ansible.builtin.file:
     path: /home/linuxbrew/.linuxbrew
-    mode: '0755'
+    mode: "0755"
     state: directory
-    recurse: no
+    recurse: false
   when: chineseroom_app_homebrew_enable
 
 - name: Add Homebrew to system PATH
-  copy:
+  ansible.builtin.copy:
     dest: /etc/profile.d/homebrew.sh
-    mode: '0644'
+    mode: "0644"
     content: |
       eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
       brew() {
@@ -86,28 +86,28 @@
   when: chineseroom_app_homebrew_enable
 
 - name: Install Claude Code for chineseroom user (native installer)
-  become: yes
+  become: true
   become_user: "{{ chineseroom_restricted_user }}"
-  shell: |
+  ansible.builtin.shell: |
     curl -fsSL https://claude.ai/install.sh | bash
   args:
     creates: "/home/{{ chineseroom_restricted_user }}/.local/bin/claude"
   when: chineseroom_app_anthropic_claudecode_enable
 
 - name: Create systemd user service directory for chineseroom user
-  file:
+  ansible.builtin.file:
     path: "/home/{{ chineseroom_restricted_user }}/.config/systemd/user"
     state: directory
     owner: "{{ chineseroom_restricted_user }}"
     group: "{{ chineseroom_restricted_user }}"
-    mode: '0700'
+    mode: "0700"
 
 - name: Add user service to update Claude Code
-  copy:
+  ansible.builtin.copy:
     dest: "/home/{{ chineseroom_restricted_user }}/.config/systemd/user/claude-code-update.service"
     owner: "{{ chineseroom_restricted_user }}"
     group: "{{ chineseroom_restricted_user }}"
-    mode: '0644'
+    mode: "0644"
     content: |
       [Unit]
       Description=Update Claude Code Oneshot
@@ -120,11 +120,11 @@
   when: chineseroom_app_anthropic_claudecode_autoupdate
 
 - name: Add user timer to update Claude Code
-  copy:
+  ansible.builtin.copy:
     dest: "/home/{{ chineseroom_restricted_user }}/.config/systemd/user/claude-code-update.timer"
     owner: "{{ chineseroom_restricted_user }}"
     group: "{{ chineseroom_restricted_user }}"
-    mode: '0644'
+    mode: "0644"
     content: |
       [Unit]
       Description=Update Claude Code Timer
@@ -146,9 +146,9 @@
 # Chrome is only installable on x86_64, and this role is meant to work on aarch64 as well, so we don't install it.
 # Enable Playwright MCP and tell it to use Firefox instead.
 - name: Install Playwright for Claude
-  become: yes
+  become: true
   become_user: "{{ chineseroom_restricted_user }}"
-  command: >
+  ansible.builtin.command: >
     claude mcp add playwright --scope user npx -- '@playwright/mcp@latest' --browser firefox
   environment:
     PATH: "/home/{{ chineseroom_restricted_user }}/.local/bin:{{ ansible_env.PATH }}"
@@ -158,11 +158,11 @@
   when: chineseroom_app_playwright_enable
 
 - name: Install OpenAI Codex CLI for chineseroom user
-  become: yes
+  become: true
   become_user: "{{ chineseroom_restricted_user }}"
-  npm:
+  community.general.npm:
     name: "@openai/codex"
-    global: yes
+    global: true
     state: present
   environment:
     PATH: "/home/{{ chineseroom_restricted_user }}/.local/bin:{{ ansible_env.PATH }}"
@@ -170,11 +170,11 @@
   when: chineseroom_app_openai_codex_enable
 
 - name: Add user service to update OpenAI Codex CLI
-  copy:
+  ansible.builtin.copy:
     dest: "/home/{{ chineseroom_restricted_user }}/.config/systemd/user/openai-codex-update.service"
     owner: "{{ chineseroom_restricted_user }}"
     group: "{{ chineseroom_restricted_user }}"
-    mode: '0644'
+    mode: "0644"
     content: |
       [Unit]
       Description=Update OpenAI Codex CLI Oneshot
@@ -188,11 +188,11 @@
   when: chineseroom_app_openai_codex_autoupdate
 
 - name: Add user timer to update OpenAI Codex CLI
-  copy:
+  ansible.builtin.copy:
     dest: "/home/{{ chineseroom_restricted_user }}/.config/systemd/user/openai-codex-update.timer"
     owner: "{{ chineseroom_restricted_user }}"
     group: "{{ chineseroom_restricted_user }}"
-    mode: '0644'
+    mode: "0644"
     content: |
       [Unit]
       Description=Update OpenAI Codex CLI Timer
@@ -211,11 +211,11 @@
   when: chineseroom_app_openai_codex_autoupdate
 
 - name: Install OpenClaw for chineseroom user
-  become: yes
+  become: true
   become_user: "{{ chineseroom_restricted_user }}"
-  npm:
+  community.general.npm:
     name: "openclaw@latest"
-    global: yes
+    global: true
     state: present
   environment:
     PATH: "/home/{{ chineseroom_restricted_user }}/.local/bin:{{ ansible_env.PATH }}"
@@ -223,9 +223,9 @@
   when: chineseroom_app_openclaw_enable
 
 - name: Workaround for OpenClaw matrix-bot-sdk dependency
-  become: yes
+  become: true
   become_user: "{{ chineseroom_restricted_user }}"
-  npm:
+  community.general.npm:
     name: "@vector-im/matrix-bot-sdk"
     path: "/home/{{ chineseroom_restricted_user }}/.local/lib/node_modules/openclaw"
     state: present

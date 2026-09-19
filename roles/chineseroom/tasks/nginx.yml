@@ -1,57 +1,57 @@
 ---
 - name: Install required packages
-  package:
+  ansible.builtin.package:
     name:
       - nginx
     state: present
 
 - name: Create nginx trusted conf directory
-  file:
+  ansible.builtin.file:
     path: "{{ chineseroom_nginx_conf_trusted_dir }}"
     state: directory
     owner: root
     group: root
-    mode: '0755'
+    mode: "0755"
 
 - name: Create nginx sandbox conf directory
-  file:
+  ansible.builtin.file:
     path: "{{ chineseroom_nginx_conf_sandbox_dir }}"
     state: directory
     owner: root
     group: root
-    mode: '0755'
+    mode: "0755"
 
 - name: Deploy shared SSL/TLS parameters
-  template:
+  ansible.builtin.template:
     src: nginx-ssl.conf.j2
     dest: "{{ chineseroom_nginx_ssl_conf }}"
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
   notify: reload nginx
 
 - name: Add includes for trusted and sandbox conf directories
-  copy:
+  ansible.builtin.copy:
     content: |
       include {{ chineseroom_nginx_conf_trusted_dir }}/*.conf;
       include {{ chineseroom_nginx_conf_sandbox_dir }}/*.conf;
     dest: "{{ chineseroom_nginx_conf_dir }}/chineseroom-includes.conf"
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
   notify: reload nginx
 
 - name: Create nginx configuration for domain
-  template:
+  ansible.builtin.template:
     src: nginx-domain.conf.j2
     dest: "{{ chineseroom_nginx_conf_dir }}/{{ chineseroom_letsencrypt_domain }}.conf"
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
   notify: reload nginx
 
 - name: Set server_names_hash_bucket_size for long hostnames
-  copy:
+  ansible.builtin.copy:
     content: |
       # Long sandbox hostnames (e.g. app.sandbox.host.example.com) exceed
       # nginx's default 64-byte hash bucket size.
@@ -59,11 +59,11 @@
     dest: "{{ chineseroom_nginx_conf_dir }}/chineseroom-tuning.conf"
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
   notify: reload nginx
 
 - name: Add connection upgrade map to nginx config
-  copy:
+  ansible.builtin.copy:
     content: |
       # This is required to enable
       #   proxy_set_header   Connection $connection_upgrade;
@@ -75,28 +75,28 @@
     dest: "{{ chineseroom_nginx_conf_dir }}/connection-upgrade.conf"
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
 
 - name: Configure firewall for HTTP and HTTPS
-  firewalld:
+  ansible.posix.firewalld:
     service: "{{ item }}"
-    permanent: yes
+    permanent: true
     state: enabled
-    immediate: yes
+    immediate: true
   loop:
     - http
     - https
   when: chineseroom_firewall_enabled
 
 - name: Enable and start nginx
-  systemd:
+  ansible.builtin.systemd:
     name: nginx
-    enabled: yes
+    enabled: true
     state: started
 
 - name: Allow nginx to connect to make outbound network connections
   # This is required for connecting to localhost too
-  seboolean:
+  ansible.posix.seboolean:
     name: httpd_can_network_connect
-    state: yes
-    persistent: yes
+    state: true
+    persistent: true

@@ -1,6 +1,6 @@
 ---
 - name: Fail if AWS credentials are not configured
-  fail:
+  ansible.builtin.fail:
     msg: |
       AWS credentials must be configured via:
         - chineseroom_aws_access_key_id
@@ -13,15 +13,15 @@
     chineseroom_aws_region == ""
 
 - name: Create AWS configuration directory
-  file:
+  ansible.builtin.file:
     path: /root/.aws
     state: directory
     owner: root
     group: root
-    mode: '0700'
+    mode: "0700"
 
 - name: Configure AWS credentials
-  copy:
+  ansible.builtin.copy:
     content: |
       [default]
       aws_access_key_id = {{ chineseroom_aws_access_key_id }}
@@ -29,20 +29,20 @@
     dest: /root/.aws/credentials
     owner: root
     group: root
-    mode: '0600'
+    mode: "0600"
 
 - name: Configure AWS region
-  copy:
+  ansible.builtin.copy:
     content: |
       [default]
       region = {{ chineseroom_aws_region }}
     dest: /root/.aws/config
     owner: root
     group: root
-    mode: '0600'
+    mode: "0600"
 
 - name: Install required packages
-  package:
+  ansible.builtin.package:
     name:
       - certbot
       - python3-certbot-dns-route53
@@ -55,7 +55,7 @@
   #   after the cert was first issued).
   # Together these make the task idempotent: no-op on a matching cert,
   # expand on SAN changes, renew when approaching expiry.
-  command: |
+  ansible.builtin.command: |
     certbot certonly
       --non-interactive
       --agree-tos
@@ -69,19 +69,19 @@
   changed_when: false
 
 - name: Create Let's Encrypt renewal hook directory
-  file:
+  ansible.builtin.file:
     path: "{{ chineseroom_letsencrypt_base }}/renewal-hooks/deploy"
     state: directory
     owner: root
     group: root
-    mode: '0755'
+    mode: "0755"
 
 - name: Create nginx reload hook for cert renewal
-  copy:
+  ansible.builtin.copy:
     content: |
       #!/bin/sh
       systemctl reload nginx
     dest: "{{ chineseroom_letsencrypt_base }}/renewal-hooks/deploy/reload-nginx.sh"
     owner: root
     group: root
-    mode: '0755'
+    mode: "0755"
