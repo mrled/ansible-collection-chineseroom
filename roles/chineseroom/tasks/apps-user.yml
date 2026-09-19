@@ -210,6 +210,60 @@
     - enable openai-codex-update.timer
   when: chineseroom_app_openai_codex_autoupdate
 
+- name: Install Pi coding agent for chineseroom user
+  become: true
+  become_user: "{{ chineseroom_restricted_user }}"
+  community.general.npm:
+    name: "@earendil-works/pi-coding-agent"
+    global: true
+    state: present
+  environment:
+    PATH: "/home/{{ chineseroom_restricted_user }}/.local/bin:{{ ansible_env.PATH }}"
+    npm_config_prefix: "/home/{{ chineseroom_restricted_user }}/.local"
+    npm_config_ignore_scripts: "true"
+  when: chineseroom_app_pi_enable
+
+- name: Add user service to update Pi coding agent
+  ansible.builtin.copy:
+    dest: "/home/{{ chineseroom_restricted_user }}/.config/systemd/user/pi-update.service"
+    owner: "{{ chineseroom_restricted_user }}"
+    group: "{{ chineseroom_restricted_user }}"
+    mode: "0644"
+    content: |
+      [Unit]
+      Description=Update Pi Coding Agent Oneshot
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/bin/npm install -g --ignore-scripts @earendil-works/pi-coding-agent
+      Environment=PATH=/home/{{ chineseroom_restricted_user }}/.local/bin:{{ ansible_env.PATH }}
+      Environment=npm_config_prefix=/home/{{ chineseroom_restricted_user }}/.local
+  notify:
+    - user daemon-reload
+  when: chineseroom_app_pi_autoupdate
+
+- name: Add user timer to update Pi coding agent
+  ansible.builtin.copy:
+    dest: "/home/{{ chineseroom_restricted_user }}/.config/systemd/user/pi-update.timer"
+    owner: "{{ chineseroom_restricted_user }}"
+    group: "{{ chineseroom_restricted_user }}"
+    mode: "0644"
+    content: |
+      [Unit]
+      Description=Update Pi Coding Agent Timer
+      [Timer]
+      # Run nightly between 2 AM and 6 AM (with the delay)
+      OnCalendar=*-*-* 02:00:00
+      RandomizedDelaySec=4h
+      # If the machine was off during a scheduled window, run once at next boot
+      Persistent=true
+      Unit=pi-update.service
+      [Install]
+      WantedBy=timers.target
+  notify:
+    - user daemon-reload
+    - enable pi-update.timer
+  when: chineseroom_app_pi_autoupdate
+
 - name: Install OpenClaw for chineseroom user
   become: true
   become_user: "{{ chineseroom_restricted_user }}"

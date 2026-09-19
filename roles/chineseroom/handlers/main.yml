@@ -33,3 +33,12 @@
     enabled: true
     state: started
     scope: user
+
+- name: Enable pi-update.timer
+  become: true
+  become_user: "{{ chineseroom_restricted_user }}"
+  ansible.builtin.systemd:
+    name: pi-update.timer
+    enabled: true
+    state: started
+    scope: user
