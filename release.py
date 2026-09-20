@@ -6,10 +6,26 @@ from pathlib import Path
 import sys
 
 
-def fail(msg):
-    """Print an error and exit."""
-    print(f"Error: {msg}", file=sys.stderr)
-    sys.exit(1)
+class FatalError(Exception):
+    """Custom exception for fatal errors."""
+
+
+class FatalContextHandler:
+    """Context manager that prints a fatal exception to stdout and exits if one is encountered."""
+
+    def __enter__(self):
+        return self
+
+    def __exit__(
+        self,
+        exc_type: type | None,
+        exc_value: BaseException | None,
+        traceback: object | None,
+    ):
+        if exc_type is FatalError:
+            print(f"Fatal error: {exc_value}", file=sys.stderr)
+            sys.exit(1)
+        return False
 
 
 def check_clean_git():
@@ -23,19 +39,19 @@ def check_clean_git():
         if line and not line.startswith("??")
     ]
     if dirty:
-        fail("Uncommitted changes present in tracked files.")
+        raise FatalError("Uncommitted changes present in tracked files.")
 
 
-def get_current_version(file_path):
+def get_current_version(file_path: Path):
     """Return match object and full file text for galaxy.yml version line."""
     text = file_path.read_text()
     match = re.search(r"^(\s*version\s*:\s*)(\d+\.\d+\.\d+)(\s*)$", text, re.MULTILINE)
     if not match:
-        fail("No valid version line found in galaxy.yml.")
+        raise FatalError("No valid version line found in galaxy.yml.")
     return match, text
 
 
-def bump_version(old_version, mode):
+def bump_version(old_version: str, mode: str) -> str:
     """Return new version string after bumping or replacing."""
     major, minor, patch = map(int, old_version.split("."))
     if mode == "major":
@@ -47,7 +63,9 @@ def bump_version(old_version, mode):
     elif re.fullmatch(r"\d+\.\d+\.\d+", mode):
         return mode
     else:
-        fail("Invalid version specifier. Use major, minor, patch, or explicit x.y.z")
+        raise FatalError(
+            "Invalid version specifier. Use major, minor, patch, or explicit x.y.z"
+        )
 
 
 def main():
@@ -62,7 +80,7 @@ def main():
 
     galaxy_file = Path("galaxy.yml")
     if not galaxy_file.exists():
-        fail("galaxy.yml not found.")
+        raise FatalError("galaxy.yml not found.")
 
     match, content = get_current_version(galaxy_file)
     old_version = match.group(2)
@@ -84,4 +102,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    with FatalContextHandler():
+        main()
