@@ -116,7 +116,7 @@
       ExecStart=/bin/bash -c 'curl -fsSL https://claude.ai/install.sh | bash'
       Environment=PATH=/home/{{ chineseroom_restricted_user }}/.local/bin:{{ ansible_env.PATH }}
   notify:
-    - user daemon-reload
+    - User daemon-reload
   when: chineseroom_app_anthropic_claudecode_autoupdate
 
 - name: Add user timer to update Claude Code
@@ -138,8 +138,8 @@
       [Install]
       WantedBy=timers.target
   notify:
-    - user daemon-reload
-    - enable claude-code-update.timer
+    - User daemon-reload
+    - Enable claude-code-update.timer
   when: chineseroom_app_anthropic_claudecode_autoupdate
 
 # The default instructions assume Chrome is installed.
@@ -184,7 +184,7 @@
       Environment=PATH=/home/{{ chineseroom_restricted_user }}/.local/bin:{{ ansible_env.PATH }}
       Environment=npm_config_prefix=/home/{{ chineseroom_restricted_user }}/.local
   notify:
-    - user daemon-reload
+    - User daemon-reload
   when: chineseroom_app_openai_codex_autoupdate
 
 - name: Add user timer to update OpenAI Codex CLI
@@ -206,8 +206,8 @@
       [Install]
       WantedBy=timers.target
   notify:
-    - user daemon-reload
-    - enable openai-codex-update.timer
+    - User daemon-reload
+    - Enable openai-codex-update.timer
   when: chineseroom_app_openai_codex_autoupdate
 
 - name: Install Pi coding agent for chineseroom user
@@ -238,7 +238,7 @@
       Environment=PATH=/home/{{ chineseroom_restricted_user }}/.local/bin:{{ ansible_env.PATH }}
       Environment=npm_config_prefix=/home/{{ chineseroom_restricted_user }}/.local
   notify:
-    - user daemon-reload
+    - User daemon-reload
   when: chineseroom_app_pi_autoupdate
 
 - name: Add user timer to update Pi coding agent
@@ -260,8 +260,8 @@
       [Install]
       WantedBy=timers.target
   notify:
-    - user daemon-reload
-    - enable pi-update.timer
+    - User daemon-reload
+    - Enable pi-update.timer
   when: chineseroom_app_pi_autoupdate
 
 - name: Install OpenClaw for chineseroom user
