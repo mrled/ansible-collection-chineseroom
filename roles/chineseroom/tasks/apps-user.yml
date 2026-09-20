@@ -223,6 +223,31 @@
     npm_config_ignore_scripts: "true"
   when: chineseroom_app_pi_enable
 
+- name: List installed Pi packages for chineseroom user
+  become: true
+  become_user: "{{ chineseroom_restricted_user }}"
+  ansible.builtin.command: pi list --no-approve
+  environment:
+    PATH: "/home/{{ chineseroom_restricted_user }}/.local/bin:{{ ansible_env.PATH }}"
+  register: chineseroom_pi_packages_installed
+  changed_when: false
+  when: chineseroom_app_pi_enable
+
+- name: Install Pi packages for chineseroom user
+  become: true
+  become_user: "{{ chineseroom_restricted_user }}"
+  ansible.builtin.command: "pi install {{ item }} --no-approve"
+  environment:
+    PATH: "/home/{{ chineseroom_restricted_user }}/.local/bin:{{ ansible_env.PATH }}"
+  loop:
+    - npm:agent-browser
+    - npm:pi-web-search
+    - npm:pi-sub-agent
+  changed_when: true
+  when:
+    - chineseroom_app_pi_enable
+    - item not in chineseroom_pi_packages_installed.stdout | default('')
+
 - name: Add user service to update Pi coding agent
   ansible.builtin.copy:
     dest: "/home/{{ chineseroom_restricted_user }}/.config/systemd/user/pi-update.service"
