@@ -27,17 +27,18 @@ ansible-galaxy collection build
 
 GitHub Actions handles publishing to Ansible Galaxy based on version tags,
 but Ansible Galaxy knows only about the contents of `galaxy.yml`.
-To release a new version:
-
-Update `galaxy.yml`:
-
-```yaml
-version: 1.2.3
-```
-
-Create and push a version tag with:
+`./release.py` handles both.
 
 ```sh
-git tag v1.2.3
-git push origin master --tags
+# Bump the major version, e.g. 1.2.3 -> 2.0.0
+./release.py major
+
+# Bump the minor version, e.g. 1.2.3 -> 1.3.0
+./release.py minor
+
+# Bump the patch version, e.g. 1.2.3 -> 1.2.4
+./release.py patch
+
+# Release a specific version
+./release.py 2.0.1
 ```
