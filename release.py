@@ -77,11 +77,10 @@ def main():
         ["git", "commit", "-m", f"Release version v{new_version}"], check=True
     )
     subprocess.run(["git", "tag", f"v{new_version}"], check=True)
+    subprocess.run(["git", "push", "origin", "master", "--tags"], check=True)
 
     print(f"Bumped version: {old_version} → {new_version}")
-    print(f"Committed and tagged as v{new_version}.")
-    print("You can now push the changes and tag with:")
-    print(f"  git push origin master --tags")
+    print(f"Committed and tagged as v{new_version}, and pushed to origin.")
 
 
 if __name__ == "__main__":
