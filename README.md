@@ -25,7 +25,15 @@ ansible-galaxy collection build
 
 ### Releasing
 
-GitHub Actions handles publishing to Ansible Galaxy based on version tags.
+GitHub Actions handles publishing to Ansible Galaxy based on version tags,
+but Ansible Galaxy knows only about the contents of `galaxy.yml`.
+To release a new version:
+
+Update `galaxy.yml`:
+
+```yaml
+version: 1.2.3
+```
 
 Create and push a version tag with:
 

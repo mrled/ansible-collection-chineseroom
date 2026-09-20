@@ -25,6 +25,25 @@ jobs:
           python -m pip install --upgrade pip
           pip install ansible-core
 
+      - name: Verify tag matches galaxy.yml version
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          GALAXY_VERSION=$(python - <<'PY'
+          import re
+          from pathlib import Path
+
+          match = re.search(r'^version:\s*(\S+)\s*$', Path('galaxy.yml').read_text(), re.MULTILINE)
+          if not match:
+              raise SystemExit('Could not find version in galaxy.yml')
+          print(match.group(1))
+          PY
+          )
+
+          if [ "$TAG_VERSION" != "$GALAXY_VERSION" ]; then
+            echo "Tag version v$TAG_VERSION does not match galaxy.yml version $GALAXY_VERSION" >&2
+            exit 1
+          fi
+
       - name: Build collection
         run: |
           ansible-galaxy collection build
